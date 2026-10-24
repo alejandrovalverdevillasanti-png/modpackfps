@@ -1,0 +1,30 @@
+name: Construir modpack
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Descomprimir el proyecto
+        run: |
+          for z in *.zip; do unzip -q "$z"; done
+          chmod +x FPS_Boost_God_Mode_Prototype/gradlew
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Compilar mods propios
+        working-directory: FPS_Boost_God_Mode_Prototype
+        run: ./gradlew build --no-daemon
+      - name: Armar el modpack
+        working-directory: FPS_Boost_God_Mode_Prototype
+        run: python3 tools/build_modpack.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MODPACK_LISTO
+          path: |
+            FPS_Boost_God_Mode_Prototype/build/modpack/*.mrpack
+            FPS_Boost_God_Mode_Prototype/build/modpack/*-instance.zip
+            
